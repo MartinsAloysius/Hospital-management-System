@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <section class="header">
+    <div class="navbar">
+        <div class="logo"></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="prescription.html">Prescriptions</a></li>
+            <li><a href="contact.html">Contact</a></li>
+    </div>
+    </section>
+
+    <section class="about">
+    <div class="about-content">
+        <h1>About Our Hospital Management System</h1>
+        <p>Our Hospital Management System is designed to streamline the operations of healthcare facilities, ensuring efficient patient care and administrative processes. With features such as patient record management, appointment scheduling, billing, and reporting, our system aims to enhance the overall experience for both patients and healthcare providers.</p>
+        <p>We are committed to providing a user-friendly interface and robust functionality to meet the needs of modern healthcare institutions. Our team continuously works on improving the system to adapt to the evolving requirements of the healthcare industry.</p>
+    </section>
+
+   <section class="services-section">
+    <div class="services">
+        <h2>Our Services</h2>
+        <div class="service-item">
+            <h3>Patient Management</h3>
+            <p>Efficiently manage patient records, history, and treatment plans.</p>
+        </div>
+        <div class="service-item">
+            <h3>Appointment Scheduling</h3>
+            <p>Streamline the process of booking and managing patient appointments.</p>
+        </div>
+        <div class="service-item">
+            <h3>Billing and Invoicing</h3>
+            <p>Automate billing processes and generate invoices with ease.</p>
+        </div>
+        <div class="service-item">
+            <h3>Reporting and Analytics</h3>
+            <p>Gain insights into hospital operations with comprehensive reports.</p>
+        </div>
+    </div>
+    </section>
+
+    <section class="appointment">
+    <div class="appointment-form">
+        <h2>Book an Appointment</h2>
+        <form action="submit_appointment.html" method="post">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <label for="date">Preferred Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="time">Preferred Time:</label>
+            <input type="time" id="time" name="time" required>
+
+            <label for="doctor">Select Doctor:</label>
+            <select id="doctor" name="doctor" required>
+                <option value="">--Select--</option>
+                <option value="dr_smith">Dr. Smith</option>
+                <option value="dr_jones">Dr. Jones</option>
+                <option value="dr_brown">Dr. Brown</option>
+            </select>
+
+            <button type="submit">Book Appointment</button>
+        </form>
+    </section>
+
+    <section class="prescriptions">
+    <div class="prescription-info">
+        <h2>Prescription Management</h2>
+        <p>Our system allows healthcare providers to create, manage, and track patient prescriptions efficiently. Patients can easily access their prescriptions online, ensuring they have the necessary information for their medications.</p>
+    </section>
+
+
+</body>
+</html>
