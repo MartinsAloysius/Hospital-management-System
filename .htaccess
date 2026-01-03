@@ -1,0 +1,24 @@
+# Apache configuration for Hospital Management System
+
+# Enable error reporting (disable in production)
+# php_flag display_errors On
+# php_value error_reporting E_ALL
+
+# Set default charset
+AddDefaultCharset UTF-8
+
+# Prevent directory listing
+Options -Indexes
+
+# Enable rewrite engine (if needed for clean URLs)
+RewriteEngine On
+
+# Protect config files
+<FilesMatch "^(database\.php|\.htaccess)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Set PHP timezone (adjust as needed)
+php_value date.timezone "America/New_York"
+

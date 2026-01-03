@@ -1,0 +1,573 @@
+/* Hospital Management System - Prescription Module Styles */
+/* Modern Professional Design */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-dark: #2c2c2c;
+    --primary-light: #f8f9fa;
+    --border-color: #e1e4e8;
+    --text-primary: #24292e;
+    --text-secondary: #586069;
+    --text-muted: #959da5;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --radius: 8px;
+    --radius-sm: 6px;
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header Styles */
+header {
+    background: var(--primary-dark);
+    color: white;
+    padding: var(--spacing-xl) var(--spacing-md);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+    letter-spacing: -0.5px;
+}
+
+header h2 {
+    font-size: 0.95rem;
+    font-weight: 400;
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Navigation Tabs */
+.tabs {
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+}
+
+.tabs-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: var(--spacing-xs);
+    padding: 0 var(--spacing-md);
+}
+
+.tab-btn {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--primary-light);
+}
+
+.tab-btn.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--primary-dark);
+    background: transparent;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-md);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form and View Containers */
+.form-container, .view-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.form-container h3, .view-container h3 {
+    margin-bottom: var(--spacing-xl);
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--border-color);
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    letter-spacing: 0.2px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: white;
+    color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 3px rgba(44, 44, 44, 0.1);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: #c6cbd1;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Medications Section */
+.medications-section {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+    border-top: 2px solid var(--border-color);
+}
+
+.medications-section h4 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.medication-item {
+    background: var(--primary-light);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.medication-item:hover {
+    border-color: #c6cbd1;
+    box-shadow: var(--shadow-sm);
+}
+
+.medication-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.medication-item-header h5 {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-remove {
+    background: var(--text-secondary);
+    color: white;
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-remove:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.medication-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.medication-fields .form-group {
+    margin-bottom: 0;
+}
+
+.medication-fields .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Buttons */
+.form-actions {
+    margin-top: var(--spacing-xl);
+    display: flex;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-primary {
+    background: var(--primary-dark);
+    color: white;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    background: #1a1a1a;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-secondary:hover {
+    background: var(--primary-light);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary span {
+    font-size: 1.2em;
+    margin-right: 4px;
+    font-weight: 700;
+}
+
+/* Messages */
+.message {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    display: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.message.success {
+    background: #f0f0f0;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    display: block;
+}
+
+.message.error {
+    background: #e8e8e8;
+    color: var(--text-primary);
+    border: 1px solid #c6cbd1;
+    display: block;
+}
+
+/* View Prescriptions Styles */
+.filters {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    padding: var(--spacing-lg);
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.filters select {
+    flex: 1;
+    min-width: 200px;
+}
+
+.prescriptions-list {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.prescription-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.prescription-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: #c6cbd1;
+}
+
+.prescription-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.prescription-info h4 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.prescription-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: var(--spacing-xs) 0;
+    line-height: 1.8;
+}
+
+.prescription-status {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background: var(--primary-dark);
+    color: white;
+}
+
+.status-inactive {
+    background: #e1e4e8;
+    color: var(--text-secondary);
+}
+
+.medications-preview {
+    margin-top: var(--spacing-lg);
+}
+
+.medications-preview h5 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.medication-badge {
+    display: inline-block;
+    background: var(--primary-light);
+    padding: var(--spacing-xs) var(--spacing-md);
+    margin: var(--spacing-xs) var(--spacing-xs) var(--spacing-xs) 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-md);
+    color: var(--text-muted);
+}
+
+.empty-state h3 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    :root {
+        --spacing-2xl: 32px;
+    }
+    
+    header {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    header h2 {
+        font-size: 0.8rem;
+    }
+    
+    .content-wrapper {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+    
+    .form-container, .view-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .form-container h3, .view-container h3 {
+        font-size: 1.5rem;
+    }
+    
+    .medication-fields {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters {
+        flex-direction: column;
+    }
+    
+    .filters select {
+        width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .prescription-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .tabs-container {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+        border-left: 3px solid transparent;
+    }
+    
+    .tab-btn.active {
+        border-left-color: var(--primary-dark);
+        border-bottom-color: var(--border-color);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .tabs, .form-actions, .btn-secondary {
+        display: none;
+    }
+    
+    .prescription-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
