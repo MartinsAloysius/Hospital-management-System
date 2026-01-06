@@ -24,7 +24,18 @@ class Database {
             // Create database directory if it doesn't exist
             $dbDir = dirname(DB_PATH);
             if (!is_dir($dbDir)) {
-                mkdir($dbDir, 0755, true);
+                if (!mkdir($dbDir, 0755, true)) {
+                    throw new Exception("Failed to create database directory: " . $dbDir . ". Please check folder permissions.");
+                }
+            }
+            
+            // Check if directory is writable
+            if (!is_writable($dbDir)) {
+                // Try to make it writable
+                @chmod($dbDir, 0755);
+                if (!is_writable($dbDir)) {
+                    throw new Exception("Database directory is not writable: " . $dbDir . ". Please set permissions to 755.");
+                }
             }
             
             // Connect to SQLite database
@@ -32,8 +43,18 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
+            // Enable foreign keys for SQLite
+            $this->conn->exec("PRAGMA foreign_keys = ON");
+            
         } catch (PDOException $e) {
-            die("Database connection error: " . $e->getMessage());
+            $errorMsg = "Database connection error: " . $e->getMessage();
+            $errorMsg .= "<br><br><strong>Troubleshooting:</strong><br>";
+            $errorMsg .= "1. Make sure the 'database' folder exists and is writable<br>";
+            $errorMsg .= "2. Check file permissions (folder should be 755)<br>";
+            $errorMsg .= "3. Ensure PHP has SQLite extension enabled (pdo_sqlite)<br>";
+            die($errorMsg);
+        } catch (Exception $e) {
+            die("Database setup error: " . $e->getMessage());
         }
     }
     

@@ -71,3 +71,4 @@ INSERT INTO patients (name, age, gender, phone, address) VALUES
 ('Robert Wilson', 28, 'Male', '555-1003', '789 Pine Road')
 ON DUPLICATE KEY UPDATE name=name;
 
+
