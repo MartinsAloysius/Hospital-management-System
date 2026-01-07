@@ -47,7 +47,7 @@ Everything is handled automatically in `config/database.php`.
 
 3. Access the application:
    ```
-   http://localhost/hositalmanagementsystem group8/
+   http://localhost/Hospital-management-System/
    ```
 
 #### Using PHP Built-in Server:
