@@ -2,29 +2,7 @@
 
 let medicationCount = 0;
 
-// Tab switching functionality
-function showTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Remove active class from all buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Show selected tab
-    document.getElementById(tabName + '-tab').classList.add('active');
-    
-    // Add active class to clicked button
-    event.target.classList.add('active');
-    
-    // Load prescriptions if viewing tab
-    if (tabName === 'view') {
-        loadPrescriptions();
-    }
-}
+// Tab switching functionality removed - both sections now on same page
 
 // Add medication field
 function addMedication() {
@@ -169,9 +147,10 @@ document.getElementById('prescription-form').addEventListener('submit', async fu
         const result = await response.json();
         
         if (result.success) {
-            showMessage('Prescription created successfully!', 'success');
+            showMessage('Prescription created successfully! Redirecting to view page...', 'success');
+            // Redirect to view page after 2 seconds
             setTimeout(() => {
-                resetForm();
+                window.location.href = 'index.php';
             }, 2000);
         } else {
             showMessage(result.message || 'Failed to create prescription', 'error');
@@ -184,73 +163,126 @@ document.getElementById('prescription-form').addEventListener('submit', async fu
 // Load prescriptions
 async function loadPrescriptions() {
     const prescriptionsList = document.getElementById('prescriptions-list');
+    if (!prescriptionsList) {
+        console.error('Prescriptions list element not found');
+        return;
+    }
+    
+    // Check if view tab is visible
+    const viewTab = document.getElementById('view-tab');
+    if (viewTab) {
+        const isVisible = window.getComputedStyle(viewTab).display !== 'none';
+        console.log('View tab visible:', isVisible, 'Has active class:', viewTab.classList.contains('active'));
+        if (!isVisible || !viewTab.classList.contains('active')) {
+            console.warn('View tab is not active/visible, but loading prescriptions anyway');
+        }
+    }
+    
     prescriptionsList.innerHTML = '<p style="text-align: center; padding: 20px;">Loading...</p>';
     
-    const doctorId = document.getElementById('filter-doctor').value;
-    const patientId = document.getElementById('filter-patient').value;
+    const doctorId = document.getElementById('filter-doctor') ? document.getElementById('filter-doctor').value : '';
+    const patientId = document.getElementById('filter-patient') ? document.getElementById('filter-patient').value : '';
     
-    let url = 'api/get_prescriptions.php?';
-    if (doctorId) url += 'doctor_id=' + doctorId + '&';
-    if (patientId) url += 'patient_id=' + patientId;
+    let url = 'api/get_prescriptions.php';
+    const params = [];
+    if (doctorId) params.push('doctor_id=' + doctorId);
+    if (patientId) params.push('patient_id=' + patientId);
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
     
     try {
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+        }
+        
         const result = await response.json();
         
-        if (result.success && result.prescriptions) {
+        if (result.success && result.prescriptions && result.prescriptions.length > 0) {
             displayPrescriptions(result.prescriptions);
         } else {
             prescriptionsList.innerHTML = '<div class="empty-state"><h3>No prescriptions found</h3><p>Create a new prescription to get started.</p></div>';
         }
     } catch (error) {
-        prescriptionsList.innerHTML = '<div class="empty-state"><h3>Error loading prescriptions</h3><p>' + error.message + '</p></div>';
+        console.error('Error loading prescriptions:', error);
+        prescriptionsList.innerHTML = '<div class="empty-state"><h3>Error loading prescriptions</h3><p>' + error.message + '</p><p style="font-size: 12px; margin-top: 10px;">Check browser console (F12) for details.</p></div>';
     }
 }
 
 // Display prescriptions
 function displayPrescriptions(prescriptions) {
+    console.log('displayPrescriptions called with:', prescriptions);
     const prescriptionsList = document.getElementById('prescriptions-list');
     
-    if (prescriptions.length === 0) {
+    if (!prescriptionsList) {
+        console.error('Prescriptions list element not found');
+        return;
+    }
+    
+    if (!prescriptions || prescriptions.length === 0) {
+        console.log('No prescriptions to display');
         prescriptionsList.innerHTML = '<div class="empty-state"><h3>No prescriptions found</h3><p>Create a new prescription to get started.</p></div>';
         return;
     }
     
+    console.log('Building HTML for', prescriptions.length, 'prescriptions');
     let html = '';
     
     prescriptions.forEach(prescription => {
-        const date = new Date(prescription.prescription_date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        // Handle date formatting safely
+        let dateStr = 'N/A';
+        try {
+            if (prescription.prescription_date) {
+                const date = new Date(prescription.prescription_date);
+                dateStr = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        } catch (e) {
+            dateStr = prescription.prescription_date || 'N/A';
+        }
+        
+        // Escape HTML to prevent XSS
+        const escapeHtml = (text) => {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
         
         html += `
             <div class="prescription-card">
                 <div class="prescription-header">
                     <div class="prescription-info">
-                        <h4>Prescription #${prescription.prescription_id}</h4>
-                        <p><strong>Patient:</strong> ${prescription.patient_name} (${prescription.age} years)</p>
-                        <p><strong>Doctor:</strong> ${prescription.doctor_name} - ${prescription.specialization}</p>
-                        <p><strong>Date:</strong> ${date}</p>
-                        ${prescription.diagnosis ? '<p><strong>Diagnosis:</strong> ' + prescription.diagnosis + '</p>' : ''}
+                        <h4>Prescription #${prescription.prescription_id || 'N/A'}</h4>
+                        <p><strong>Patient:</strong> ${escapeHtml(prescription.patient_name || 'Unknown')} ${prescription.age ? '(' + prescription.age + ' years)' : ''}</p>
+                        <p><strong>Doctor:</strong> ${escapeHtml(prescription.doctor_name || 'Unknown')}${prescription.specialization ? ' - ' + escapeHtml(prescription.specialization) : ''}</p>
+                        <p><strong>Date:</strong> ${dateStr}</p>
+                        ${prescription.diagnosis ? '<p><strong>Diagnosis:</strong> ' + escapeHtml(prescription.diagnosis) + '</p>' : ''}
                     </div>
-                    <span class="prescription-status status-${prescription.status}">${prescription.status}</span>
+                    <span class="prescription-status status-${prescription.status || 'active'}">${prescription.status || 'active'}</span>
                 </div>
                 <div class="medications-preview">
                     <h5>Medications:</h5>
-                    <p style="color: #999; font-size: 13px;">Click to view full details</p>
+                    <p style="color: #999; font-size: 13px;">View full prescription details</p>
                 </div>
             </div>
         `;
     });
     
+    // Set HTML
     prescriptionsList.innerHTML = html;
 }
 
-// Initialize - add first medication field on page load
+// Initialize - add first medication field on page load and load prescriptions
 document.addEventListener('DOMContentLoaded', function() {
     addMedication();
+    // Load prescriptions automatically on page load
+    loadPrescriptions();
 });
 
 
