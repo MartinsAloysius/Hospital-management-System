@@ -51,15 +51,57 @@ $patients = getAllPatients();
                 </div>
 
                 <div class="form-group">
-                    <label for="patient_id">Patient *</label>
-                    <select id="patient_id" name="patient_id" required>
-                        <option value="">Select Patient</option>
-                        <?php foreach ($patients as $patient): ?>
-                            <option value="<?php echo $patient['patient_id']; ?>">
-                                <?php echo htmlspecialchars($patient['name'] . ' (' . $patient['age'] . ' years, ' . $patient['gender'] . ')'); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label>Patient *</label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="btn-secondary" id="toggle-patient-mode" onclick="togglePatientMode()" style="font-size: 0.85rem; padding: 8px 15px;">
+                            + Add New Patient
+                        </button>
+                    </div>
+                    
+                    <!-- Select Existing Patient -->
+                    <div id="select-patient-section">
+                        <select id="patient_id" name="patient_id" required>
+                            <option value="">Select Patient</option>
+                            <?php foreach ($patients as $patient): ?>
+                                <option value="<?php echo $patient['patient_id']; ?>">
+                                    <?php echo htmlspecialchars($patient['name'] . ' (' . $patient['age'] . ' years, ' . $patient['gender'] . ')'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <!-- Add New Patient Form -->
+                    <div id="new-patient-section" style="display: none;">
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #ddd;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Patient Name *</label>
+                                <input type="text" id="new_patient_name" placeholder="Enter patient name" style="width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 5px;">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Age</label>
+                                    <input type="number" id="new_patient_age" placeholder="Age" min="0" max="150" style="width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 5px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Gender</label>
+                                    <select id="new_patient_gender" style="width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 5px;">
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Phone</label>
+                                <input type="text" id="new_patient_phone" placeholder="Phone number" style="width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 5px;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Address</label>
+                                <textarea id="new_patient_address" placeholder="Address" rows="2" style="width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 5px; resize: vertical;"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">

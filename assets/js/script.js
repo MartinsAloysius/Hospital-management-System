@@ -1,8 +1,82 @@
 // Hospital Management System - Prescription Module JavaScript
 
 let medicationCount = 0;
+let isNewPatientMode = false;
 
-// Tab switching functionality removed - both sections now on same page
+// Toggle between select existing patient and add new patient
+function togglePatientMode() {
+    isNewPatientMode = !isNewPatientMode;
+    const selectSection = document.getElementById('select-patient-section');
+    const newPatientSection = document.getElementById('new-patient-section');
+    const toggleButton = document.getElementById('toggle-patient-mode');
+    const patientSelect = document.getElementById('patient_id');
+    
+    if (isNewPatientMode) {
+        selectSection.style.display = 'none';
+        newPatientSection.style.display = 'block';
+        toggleButton.textContent = '← Select Existing Patient';
+        patientSelect.removeAttribute('required');
+        document.getElementById('new_patient_name').setAttribute('required', 'required');
+    } else {
+        selectSection.style.display = 'block';
+        newPatientSection.style.display = 'none';
+        toggleButton.textContent = '+ Add New Patient';
+        patientSelect.setAttribute('required', 'required');
+        document.getElementById('new_patient_name').removeAttribute('required');
+    }
+}
+
+// Create new patient
+async function createPatient() {
+    const name = document.getElementById('new_patient_name').value.trim();
+    if (!name) {
+        showMessage('Patient name is required', 'error');
+        return null;
+    }
+    
+    const patientData = {
+        name: name,
+        age: document.getElementById('new_patient_age').value || null,
+        gender: document.getElementById('new_patient_gender').value || null,
+        phone: document.getElementById('new_patient_phone').value.trim() || null,
+        address: document.getElementById('new_patient_address').value.trim() || null
+    };
+    
+    try {
+        const response = await fetch('api/create_patient.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(patientData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Add new patient to dropdown
+            const patientSelect = document.getElementById('patient_id');
+            const option = document.createElement('option');
+            option.value = result.patient_id;
+            const displayText = result.patient.name + 
+                (result.patient.age ? ' (' + result.patient.age + ' years' : '') +
+                (result.patient.gender ? ', ' + result.patient.gender : '') + ')';
+            option.textContent = displayText;
+            patientSelect.appendChild(option);
+            
+            // Select the newly created patient
+            patientSelect.value = result.patient_id;
+            
+            return result.patient_id;
+        } else {
+            showMessage(result.message || 'Failed to create patient', 'error');
+            return null;
+        }
+    } catch (error) {
+        showMessage('Error creating patient: ' + error.message, 'error');
+        return null;
+    }
+}
 
 // Add medication field
 function addMedication() {
@@ -69,6 +143,11 @@ function resetForm() {
     document.getElementById('medications-list').innerHTML = '';
     medicationCount = 0;
     hideMessage();
+    
+    // Reset patient mode to select existing
+    if (isNewPatientMode) {
+        togglePatientMode();
+    }
 }
 
 // Show message
@@ -91,8 +170,10 @@ function hideMessage() {
     messageDiv.className = 'message';
 }
 
-// Handle form submission
-document.getElementById('prescription-form').addEventListener('submit', async function(e) {
+// Handle form submission (only if form exists - for create.php)
+const prescriptionForm = document.getElementById('prescription-form');
+if (prescriptionForm) {
+    prescriptionForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     // Validate that at least one medication is added
@@ -104,9 +185,24 @@ document.getElementById('prescription-form').addEventListener('submit', async fu
     
     // Collect form data
     const formData = new FormData(this);
+    
+    // If new patient mode, create patient first
+    let patientId = null;
+    if (isNewPatientMode) {
+        patientId = await createPatient();
+        if (!patientId) {
+            return; // Stop if patient creation failed
+        }
+    } else {
+        patientId = formData.get('patient_id');
+        if (!patientId) {
+            showMessage('Please select a patient', 'error');
+            return;
+        }
+    }
     const data = {
         doctor_id: formData.get('doctor_id'),
-        patient_id: formData.get('patient_id'),
+        patient_id: patientId,
         prescription_date: formData.get('prescription_date'),
         diagnosis: formData.get('diagnosis'),
         notes: formData.get('notes'),
@@ -158,7 +254,8 @@ document.getElementById('prescription-form').addEventListener('submit', async fu
     } catch (error) {
         showMessage('An error occurred: ' + error.message, 'error');
     }
-});
+    });
+}
 
 // Load prescriptions
 async function loadPrescriptions() {
@@ -246,16 +343,8 @@ function displayPrescriptions(prescriptions) {
             dateStr = prescription.prescription_date || 'N/A';
         }
         
-        // Escape HTML to prevent XSS
-        const escapeHtml = (text) => {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        };
-        
         html += `
-            <div class="prescription-card">
+            <div class="prescription-card" data-prescription-id="${prescription.prescription_id}" onclick="viewPrescriptionDetails(${prescription.prescription_id})" style="cursor: pointer;">
                 <div class="prescription-header">
                     <div class="prescription-info">
                         <h4>Prescription #${prescription.prescription_id || 'N/A'}</h4>
@@ -268,7 +357,10 @@ function displayPrescriptions(prescriptions) {
                 </div>
                 <div class="medications-preview">
                     <h5>Medications:</h5>
-                    <p style="color: #999; font-size: 13px;">View full prescription details</p>
+                    <p style="color: #999; font-size: 13px; text-decoration: underline;">Click to view full prescription details</p>
+                </div>
+                <div id="medications-${prescription.prescription_id}" class="medications-details" style="display: none; visibility: visible; opacity: 1; min-height: 0;">
+                    <!-- Medications will be loaded here -->
                 </div>
             </div>
         `;
@@ -278,11 +370,159 @@ function displayPrescriptions(prescriptions) {
     prescriptionsList.innerHTML = html;
 }
 
+// View full prescription details
+async function viewPrescriptionDetails(prescriptionId) {
+    console.log('Viewing prescription details for ID:', prescriptionId);
+    const medicationsDiv = document.getElementById('medications-' + prescriptionId);
+    
+    if (!medicationsDiv) {
+        console.error('Medications div not found for prescription ID:', prescriptionId);
+        alert('Error: Could not find medications container');
+        return;
+    }
+    
+    const isCurrentlyVisible = medicationsDiv.style.display === 'block' || window.getComputedStyle(medicationsDiv).display === 'block';
+    const hasContent = medicationsDiv.innerHTML.trim() !== '' && !medicationsDiv.innerHTML.includes('<!-- Medications will be loaded here -->');
+    
+    // If already loaded and visible, toggle to hide
+    if (isCurrentlyVisible && hasContent) {
+        medicationsDiv.style.display = 'none';
+        return;
+    }
+    
+    // If already loaded but hidden, just show it
+    if (!isCurrentlyVisible && hasContent) {
+        medicationsDiv.style.display = 'block';
+        medicationsDiv.style.visibility = 'visible';
+        medicationsDiv.style.opacity = '1';
+        return;
+    }
+    
+    // Show loading
+    medicationsDiv.innerHTML = '<p style="text-align: center; color: #333; padding: 20px; background: white; border-radius: 5px;">Loading medications...</p>';
+    medicationsDiv.style.display = 'block';
+    medicationsDiv.style.visibility = 'visible';
+    medicationsDiv.style.opacity = '1';
+    
+    try {
+        const url = `api/get_prescriptions.php?prescription_id=${prescriptionId}`;
+        console.log('Fetching from:', url);
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('API Response:', result);
+        
+        if (result.success && result.prescription) {
+            const medications = result.prescription.medications || [];
+            console.log('Medications found:', medications.length, medications);
+            
+            if (medications.length > 0) {
+                displayMedications(prescriptionId, medications, result.prescription);
+            } else {
+                medicationsDiv.innerHTML = '<div style="color: #333; padding: 20px; text-align: center; background: white; border-radius: 5px;">No medications found for this prescription</div>';
+            }
+        } else {
+            console.error('API returned error:', result.message || 'Unknown error');
+            medicationsDiv.innerHTML = `<div style="color: #d32f2f; padding: 20px; text-align: center; background: white; border-radius: 5px;">${result.message || 'Failed to load prescription details'}</div>`;
+        }
+    } catch (error) {
+        console.error('Error loading prescription details:', error);
+        medicationsDiv.innerHTML = `<div style="color: #d32f2f; padding: 20px; text-align: center; background: white; border-radius: 5px;">Error loading details: ${error.message}</div>`;
+    }
+}
+
+// Display medications for a prescription
+function displayMedications(prescriptionId, medications, prescription) {
+    const medicationsDiv = document.getElementById('medications-' + prescriptionId);
+    if (!medicationsDiv) {
+        console.error('Medications div not found for prescription ID:', prescriptionId);
+        return;
+    }
+    
+    console.log('Displaying medications:', medications);
+    
+    let html = '<div class="medications-list-full" style="display: block !important; visibility: visible !important; opacity: 1 !important; padding: 15px; background: #f9f9f9; border-radius: 5px; margin-top: 15px; width: 100%;">';
+    
+    if (medications && medications.length > 0) {
+        html += '<h5 style="margin-bottom: 15px; color: #333; border-bottom: 2px solid #ddd; padding-bottom: 8px;">Medication Details:</h5>';
+        
+        medications.forEach((med, index) => {
+            html += `
+                <div class="medication-detail-item" style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #e0e0e0;">
+                    <h6 style="margin-bottom: 12px; color: #333; font-weight: 600; font-size: 1rem;">${index + 1}. ${escapeHtml(med.medication_name || 'Unknown Medication')}</h6>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #666;">
+                        <p style="margin: 5px 0;"><strong>Dosage:</strong> ${escapeHtml(med.dosage || 'N/A')}</p>
+                        <p style="margin: 5px 0;"><strong>Frequency:</strong> ${escapeHtml(med.frequency || 'N/A')}</p>
+                        <p style="margin: 5px 0;"><strong>Duration:</strong> ${escapeHtml(med.duration || 'N/A')}</p>
+                        <p style="margin: 5px 0;"><strong>Quantity:</strong> ${med.quantity || 1}</p>
+                    </div>
+                    ${med.instructions ? '<p style="margin-top: 12px; font-size: 0.9rem; color: #555; padding-top: 10px; border-top: 1px solid #f0f0f0;"><strong>Instructions:</strong> ' + escapeHtml(med.instructions) + '</p>' : ''}
+                </div>
+            `;
+        });
+    } else {
+        html += '<p style="color: #999; text-align: center; padding: 20px;">No medications found</p>';
+    }
+    
+    if (prescription && prescription.notes) {
+        html += `<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; color: #555;"><strong>Additional Notes:</strong> ${escapeHtml(prescription.notes)}</div>`;
+    }
+    
+    html += '</div>';
+    
+    console.log('Setting innerHTML, length:', html.length);
+    console.log('HTML preview:', html.substring(0, 300));
+    
+    // Clear and set content
+    medicationsDiv.innerHTML = '';
+    medicationsDiv.innerHTML = html;
+    
+    // Force display
+    medicationsDiv.style.display = 'block';
+    medicationsDiv.style.visibility = 'visible';
+    medicationsDiv.style.opacity = '1';
+    medicationsDiv.style.minHeight = '50px';
+    medicationsDiv.style.width = '100%';
+    
+    // Force a reflow to ensure display
+    void medicationsDiv.offsetHeight;
+    
+    // Verify content is there
+    const children = medicationsDiv.children;
+    console.log('Medications displayed successfully. Children count:', children.length);
+    console.log('Div display:', window.getComputedStyle(medicationsDiv).display);
+    console.log('Div visibility:', window.getComputedStyle(medicationsDiv).visibility);
+    console.log('Div opacity:', window.getComputedStyle(medicationsDiv).opacity);
+    console.log('Div innerHTML length:', medicationsDiv.innerHTML.length);
+    
+    if (children.length === 0) {
+        console.error('WARNING: No children found in medications div after setting innerHTML!');
+    }
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Initialize - add first medication field on page load and load prescriptions
 document.addEventListener('DOMContentLoaded', function() {
-    addMedication();
-    // Load prescriptions automatically on page load
-    loadPrescriptions();
+    // Only add medication field if we're on create page
+    if (document.getElementById('prescription-form')) {
+        addMedication();
+    }
+    // Load prescriptions automatically on page load (only on view page)
+    if (document.getElementById('prescriptions-list')) {
+        loadPrescriptions();
+    }
 });
 
 
